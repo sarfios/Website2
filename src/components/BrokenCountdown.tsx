@@ -115,7 +115,7 @@ export default function BrokenCountdown() {
   const display = (i: number) => (scr[i] !== null ? scr[i] : String(vals[i]).padStart(2, "0"));
 
   return (
-    <section id="when" className="relative z-10 scroll-mt-24 max-w-6xl mx-auto px-5 py-24 md:py-28">
+    <section id="when" className="relative z-10 scroll-mt-24 max-w-6xl mx-auto px-5 pt-28 md:pt-36 pb-14 md:pb-20">
       <div className="reveal text-center">
         <p className="text-mist font-extrabold text-xs tracking-[0.28em] uppercase">
           Launch countdown <span className="text-blossom">(slightly broken)</span>
