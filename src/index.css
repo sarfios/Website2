@@ -244,7 +244,7 @@ body::after {
 }
 
 .cat-tail {
-  transform-origin: 302px 300px;
+  transform-origin: 302px 336px;
   animation: tail-wag 3.2s ease-in-out infinite;
 }
 
@@ -253,17 +253,17 @@ body::after {
 }
 
 .cat-breathe {
-  transform-origin: 205px 320px;
+  transform-origin: 210px 330px;
   animation: breathe 3.4s ease-in-out infinite;
 }
 
 .cat-squish {
-  transform-origin: 205px 320px;
+  transform-origin: 210px 410px;
   animation: squish 0.4s ease-out;
 }
 
 .nose-boop {
-  transform-origin: 205px 184px;
+  transform-origin: 210px 172px;
   animation: boop 0.35s ease-out;
 }
 
