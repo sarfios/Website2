@@ -116,10 +116,10 @@ body::after {
 @keyframes tail-wag {
   0%,
   100% {
-    transform: rotate(-7deg);
+    transform: rotate(-2.5deg);
   }
   50% {
-    transform: rotate(9deg);
+    transform: rotate(3.5deg);
   }
 }
 
@@ -244,8 +244,8 @@ body::after {
 }
 
 .cat-tail {
-  transform-origin: 302px 336px;
-  animation: tail-wag 3.2s ease-in-out infinite;
+  transform-origin: 352px 318px;
+  animation: tail-wag 4.5s ease-in-out infinite;
 }
 
 .cat-head {
@@ -253,17 +253,17 @@ body::after {
 }
 
 .cat-breathe {
-  transform-origin: 210px 330px;
+  transform-origin: 230px 300px;
   animation: breathe 3.4s ease-in-out infinite;
 }
 
 .cat-squish {
-  transform-origin: 210px 410px;
+  transform-origin: 230px 354px;
   animation: squish 0.4s ease-out;
 }
 
 .nose-boop {
-  transform-origin: 210px 172px;
+  transform-origin: 230px 180px;
   animation: boop 0.35s ease-out;
 }
 
@@ -276,7 +276,7 @@ body::after {
 }
 
 .yarn {
-  transform-origin: 92px 352px;
+  transform-origin: 92px 366px;
   animation: yarn-roll 4s ease-in-out infinite alternate;
 }
 
@@ -292,6 +292,36 @@ body::after {
 }
 .eyelid.closed {
   transform: scaleY(1.08);
+}
+
+/* ---- broken countdown ---- */
+@keyframes glitch-jitter {
+  0%,
+  100% {
+    transform: translate(0, 0) skewX(0);
+  }
+  20% {
+    transform: translate(-2px, 1px) skewX(-6deg);
+  }
+  40% {
+    transform: translate(2px, -1px) skewX(5deg);
+  }
+  60% {
+    transform: translate(-1px, -1px) skewX(-3deg);
+  }
+  80% {
+    transform: translate(1px, 2px) skewX(4deg);
+  }
+}
+
+.glitching {
+  animation: glitch-jitter 0.16s steps(2, end) infinite;
+  color: var(--color-blossom) !important;
+  text-shadow: 0 0 14px rgba(255, 143, 179, 0.55);
+}
+
+.colon-blink {
+  animation: soft-glow 2s ease-in-out infinite;
 }
 
 /* ---- scroll reveal ---- */
@@ -324,6 +354,10 @@ body::after {
     animation: none !important;
     flex-wrap: wrap;
     width: 100%;
+  }
+  .glitching,
+  .colon-blink {
+    animation: none !important;
   }
   .reveal {
     opacity: 1;

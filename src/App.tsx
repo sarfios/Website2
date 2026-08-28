@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
+import BrokenCountdown from "./components/BrokenCountdown";
 import CatScene from "./components/CatScene";
 import { useReveal } from "./hooks/useReveal";
 import { setMuted } from "./lib/sound";
 import {
   CatLogo,
-  CloudIcon,
   CursorIcon,
   EnvelopeIcon,
   FishIcon,
@@ -20,14 +20,13 @@ import {
 } from "./components/icons";
 
 const CAPSULE_URL =
-  "https://image.qwenlm.ai/generated-images/209e5858-33a3-4d5c-aa10-552c84477ae2/_result.png";
-
-const IMG_JARS =
-  "https://image.qwenlm.ai/generated-images/1a7e05cd-72de-41fd-8977-eb1a7c7d6e95/_result.png";
-const IMG_DOOR =
-  "https://image.qwenlm.ai/generated-images/71b17867-5d25-4b4e-b32d-2e4230182293/_result.png";
-const IMG_BLANKET =
-  "https://image.qwenlm.ai/generated-images/adadbd8b-0212-4d90-bdc3-26c2478fc25d/_result.png";
+  "https://image.qwenlm.ai/generated-images/de7d75e9-f0ec-45ef-930a-caa12b9a1c83/_result.png";
+const IMG_HALL =
+  "https://image.qwenlm.ai/generated-images/13b676e1-b3ae-4e30-8aa7-c9256d3d1d10/_result.png";
+const IMG_PHOTO =
+  "https://image.qwenlm.ai/generated-images/4f43cce8-0ff0-4e94-ba3b-c6b6b9751177/_result.png";
+const IMG_SUITCASE =
+  "https://image.qwenlm.ai/generated-images/c3e2a0ba-d4e2-4ef9-962f-2c29c2e2a0bd/_result.png";
 
 const SUPPORT_EMAIL = "support@whiskersofyesterday.com";
 const MAILTO = `mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent("Wake me when Pip wakes up")}`;
@@ -54,11 +53,9 @@ const DRIFTERS = [
 function Background() {
   return (
     <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden" aria-hidden="true">
-      {/* layered steam glows */}
       <div className="absolute inset-0 bg-[radial-gradient(60%_50%_at_85%_-10%,rgba(102,192,244,0.13)_0%,transparent_60%)]" />
       <div className="absolute inset-0 bg-[radial-gradient(50%_45%_at_-10%_40%,rgba(42,71,94,0.55)_0%,transparent_65%)]" />
       <div className="absolute inset-0 bg-[radial-gradient(45%_40%_at_60%_110%,rgba(242,166,94,0.07)_0%,transparent_60%)]" />
-      {/* drifting bits */}
       {DRIFTERS.map((d, i) => (
         <span
           key={i}
@@ -90,13 +87,13 @@ function TopBar({ muted, onToggleSound }: { muted: boolean; onToggleSound: () =>
           </span>
         </a>
 
-        <nav className="hidden md:flex items-center gap-7 mx-auto text-sm font-bold text-frost/60">
+        <nav className="hidden lg:flex items-center gap-7 mx-auto text-sm font-bold text-frost/60">
           {[
             ["Meet Pip", "#meet"],
             ["The game", "#about"],
             ["How to pet", "#how"],
+            ["Countdown", "#when"],
             ["Wishlist", "#wishlist"],
-            ["Contact", "#contact"],
           ].map(([label, href]) => (
             <a
               key={href}
@@ -135,17 +132,14 @@ function TopBar({ muted, onToggleSound }: { muted: boolean; onToggleSound: () =>
 /* ------------------------------------------------------------------ */
 
 const TICKER_ITEMS = [
+  "Home alone",
+  "Up to 8 cats",
+  "Memory doors",
   "Certified cozy",
-  "Memory exploring",
-  "Purr-powered engine",
-  "Co-op cozy",
-  "Yarn-grade physics",
-  "Nostalgia, but gentle",
-  "Zero stress · zero timers",
+  "Suitcase approved",
+  "No timers · no losing",
   "Unlimited naps",
-  "100% pettable",
-  "Cloud-synced pets",
-  "Two very good cats",
+  "Purr-powered engine",
 ];
 
 function Ticker() {
@@ -179,33 +173,29 @@ function Ticker() {
 
 const VIGNETTES = [
   {
-    src: IMG_JARS,
-    alt: "Attic shelves lined with glass jars, each holding a tiny glowing memory scene",
-    cap: "The attic shelves — every jar is somebody's favorite afternoon",
-    cls: "-rotate-2",
-    w: "w-[86%]",
+    src: IMG_HALL,
+    alt: "Two cats walking down a dark hallway where every framed photo glows",
+    cap: "Every photo in the hallway is a door",
+    cls: "-rotate-2 w-[88%]",
   },
   {
-    src: IMG_DOOR,
-    alt: "Two cats stepping side by side through a glowing doorway into a nostalgic street",
-    cap: "Step through together — the past is warmer with company",
-    cls: "rotate-2 -mt-12 ml-auto",
-    w: "w-[72%]",
+    src: IMG_PHOTO,
+    alt: "A cat stepping through a glowing vintage photograph into a sunlit summer garden",
+    cap: "One perfect summer, four paws at a time",
+    cls: "rotate-2 w-[74%] ml-auto -mt-12",
   },
   {
-    src: IMG_BLANKET,
-    alt: "An orange tabby and a grey cat sharing a knitted blanket on a rainy window seat",
-    cap: "Between chapters: blanket duty with Bibi, the second cat",
-    cls: "-rotate-1 -mt-10",
-    w: "w-[78%]",
+    src: IMG_SUITCASE,
+    alt: "Two cats napping together inside an open suitcase on a rainy window seat",
+    cap: "Between chapters: suitcase duty",
+    cls: "-rotate-1 w-[80%] -mt-10",
   },
 ];
 
-const FEATURES = [
-  "Wander hand-painted memories at your own pace — nothing hurries, nothing fails",
-  "Bring friends: cozy co-op for 2–4 wanderers, on the couch or online",
-  "Gather little scenes of yesterday and line them in glowing jars on your shelf",
-  "Pet Pip between chapters to keep the party's hearts warm — Bibi, the grey one, snores",
+const FACTS = [
+  "co-op for up to 8 cats — couch or online",
+  "every memory is a little world to wander",
+  "the cats stay cats: pettable, nap-prone, judgmental",
 ];
 
 function About() {
@@ -213,33 +203,24 @@ function About() {
     <section id="about" className="relative z-10 scroll-mt-24">
       <div className="bg-[linear-gradient(135deg,#2a475e_0%,#1e3a52_45%,#1b2838_100%)] border-y border-mist/15">
         <div className="max-w-6xl mx-auto px-5 py-24 md:py-32 grid lg:grid-cols-[1fr_1.05fr] gap-16 lg:gap-12 items-center">
-          {/* copy */}
           <div className="reveal">
             <p className="text-mist font-extrabold text-xs tracking-[0.28em] uppercase">About this game</p>
             <h2 className="font-display font-semibold text-frost text-4xl md:text-6xl mt-4 leading-[1.02]">
-              Wander yesterday,
+              Home alone.
               <br />
-              <span className="text-mist font-light">together.</span>
+              <span className="text-mist font-light">The whole past to explore.</span>
             </h2>
 
             <div className="mt-7 space-y-4 text-frost/70 leading-relaxed max-w-xl">
               <p>
-                <em className="not-italic text-cream font-bold">Whiskers of Yesterday</em> is a gentle exploration game.
-                You and your friends step softly through softly-glowing memories — grandma's kitchen, the street you
-                grew up on, one perfect summer dusk — and gather them into jars before they fade.
+                The humans left for vacation — and at night the house starts to hum. Photos, ticket stubs, the good
+                sofa: all glowing. Step inside the memories, together, gently.
               </p>
-              <p>
-                There are no timers, no wrong turns, no losing. Just lantern light, rain on the windows, old songs on
-                the radio, and room on the sofa for everyone who wants to remember with you.
-              </p>
-              <p>
-                And the cats come along. Pip anchors the party between chapters — every pet is counted, every boop is
-                logged, and every single one is remembered.
-              </p>
+              <p>No timers. No losing. Just cats, nostalgia, and room on the sofa for everyone.</p>
             </div>
 
             <ul className="mt-8 space-y-3">
-              {FEATURES.map((f) => (
+              {FACTS.map((f) => (
                 <li key={f} className="flex items-start gap-3 text-frost/75">
                   <PawIcon className="w-4 h-4 mt-1 shrink-0 text-sprout" />
                   <span>{f}</span>
@@ -248,12 +229,11 @@ function About() {
             </ul>
           </div>
 
-          {/* screenshot collage */}
           <div className="reveal relative" style={{ transitionDelay: "140ms" }}>
             {VIGNETTES.map((v) => (
               <figure
                 key={v.src}
-                className={`group relative ${v.cls} ${v.w} rounded-lg overflow-hidden border border-white/10 bg-panel shadow-[0_25px_60px_-15px_rgba(0,0,0,0.7)] transition-transform duration-500 ease-out hover:rotate-0 hover:-translate-y-1.5`}
+                className={`group relative ${v.cls} rounded-lg overflow-hidden border border-white/10 bg-panel shadow-[0_25px_60px_-15px_rgba(0,0,0,0.7)] transition-transform duration-500 ease-out hover:rotate-0 hover:-translate-y-1.5`}
               >
                 <img
                   src={v.src}
@@ -283,19 +263,19 @@ const STEPS = [
   {
     Icon: CursorIcon,
     title: "Hover near Pip",
-    text: "He'll follow your cursor with those amber eyes — pupils and all. Blinking means trust, and he blinks a lot.",
+    text: "His pupils follow your cursor. Blinking means trust — he blinks a lot.",
     offset: "md:ml-0",
   },
   {
     Icon: HandPetIcon,
     title: "Click to pet",
-    text: "Every pet is counted, ranked, and synced to the cloud. Ranks go from “Stranger” to “Chosen Human”. There is no going back.",
+    text: "Every pet is counted, ranked and cloud-synced. Top rank: “Chosen Human”. No going back.",
     offset: "md:ml-[14%]",
   },
   {
     Icon: NoseBoopIcon,
-    title: "Boop the nose (danger zone)",
-    text: "One precise click on the pink triangle. He will have feelings about it. Forty pets and he naps on the job — and it's your fault.",
+    title: "Boop the nose",
+    text: "One precise click on the pink triangle. At forty pets he naps on the job — your fault.",
     offset: "md:ml-[5%]",
   },
 ];
@@ -341,7 +321,7 @@ function HowToPet() {
 /* wishlist                                                            */
 /* ------------------------------------------------------------------ */
 
-const TAGS = ["Cozy", "Cats", "Exploration", "Wholesome", "Co-op", "Nostalgia", "Nap Simulator"];
+const TAGS = ["Cozy", "Cats", "Co-op (up to 8)", "Exploration", "Wholesome", "Nap Simulator"];
 
 function Wishlist() {
   const [wished, setWished] = useState(false);
@@ -349,11 +329,10 @@ function Wishlist() {
     <section id="wishlist" className="relative z-10 scroll-mt-24 max-w-6xl mx-auto px-5 pb-24 md:pb-32">
       <div className="reveal rounded-xl overflow-hidden border border-white/10 bg-[linear-gradient(135deg,#2a475e_0%,#1b2838_60%)] shadow-[0_40px_100px_-30px_rgba(0,0,0,0.9)]">
         <div className="grid md:grid-cols-2">
-          {/* capsule art */}
           <div className="relative overflow-hidden group bg-panel">
             <img
               src={CAPSULE_URL}
-              alt="Key art: two cats curled over a glowing photo album in a moonlit attic full of memory jars"
+              alt="Key art: two real cats asleep on a vintage photo album, a packed suitcase by the door"
               className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.045]"
               loading="lazy"
             />
@@ -362,11 +341,10 @@ function Wishlist() {
               COMING SOON
             </span>
             <span className="absolute bottom-4 left-4 text-[10px] font-extrabold tracking-[0.25em] text-frost/70 uppercase">
-              Official nap · take one
+              The humans are away · the memories are awake
             </span>
           </div>
 
-          {/* copy */}
           <div className="p-7 md:p-10 flex flex-col">
             <div className="flex flex-wrap gap-2">
               {TAGS.map((t) => (
@@ -383,10 +361,9 @@ function Wishlist() {
               The nap is <span className="text-mist">loading…</span>
             </h2>
             <p className="mt-4 text-frost/70 leading-relaxed max-w-md">
-              One rainy evening. A shelf of glowing memory jars. Friends on the sofa and a very good cat who remembers
-              every pet. We're still knitting the blankets — wishlist{" "}
-              <em className="text-cream not-italic font-bold">Whiskers of Yesterday</em> on Steam and you'll know the
-              exact moment Pip wakes up.
+              The humans come back eventually. The game arrives when it's ready — wishlist{" "}
+              <em className="text-cream not-italic font-bold">Whiskers of Yesterday</em> on Steam and be first through
+              the photo.
             </p>
 
             <div className="mt-8 flex flex-wrap items-center gap-3">
@@ -420,10 +397,8 @@ function Wishlist() {
             </div>
 
             <p className="mt-4 text-xs text-frost/45 font-semibold">
-              {wished
-                ? "Practice wishlists don't count. Yet. The real button goes live on Steam soon."
-                : "The real Steam button unlocks at launch — this one is for practice pets."}{" "}
-              Pip checks {SUPPORT_EMAIL} daily, between naps.
+              The real Steam button unlocks at launch — this one is for practice pets. Pip checks {SUPPORT_EMAIL}{" "}
+              daily, between naps.
             </p>
           </div>
         </div>
@@ -444,9 +419,6 @@ function Footer() {
         <h2 className="reveal font-display font-semibold text-frost text-5xl md:text-7xl mt-5 leading-tight">
           See you soon, <span className="text-tabby">human.</span>
         </h2>
-        <p className="reveal mt-4 text-frost/60 max-w-md mx-auto">
-          Questions, fan art of Pip and Bibi, or a formal complaint about the nose boop — the mailbox is open.
-        </p>
 
         <a
           href={MAILTO}
@@ -490,7 +462,7 @@ export default function App() {
           <div className="grid lg:grid-cols-[1.02fr_1fr] gap-14 lg:gap-10 items-center">
             <div className="reveal">
               <span className="inline-block -rotate-2 bg-mist text-ink font-display font-semibold text-[11px] tracking-[0.24em] uppercase px-3.5 py-2 rounded shadow-[0_8px_25px_rgba(102,192,244,0.3)]">
-                A cozy memory-exploring game
+                A cozy home-alone cat game
               </span>
 
               <h1 className="font-display mt-7 leading-[0.93]">
@@ -502,9 +474,8 @@ export default function App() {
               </h1>
 
               <p className="mt-6 text-lg text-frost/70 leading-relaxed max-w-md">
-                Wander back through the good old days with the friends you love — at cat-pace, lantern in hand — guided
-                by a tabby who remembers every single pet. The kettle's not quite boiled and the blankets are still
-                knitting. <span className="text-cream font-bold">It's coming soon.</span>
+                The humans went on vacation. The cats stayed — and every memory in the house started to glow. Explore
+                them together. <span className="text-cream font-bold">Coming soon.</span>
               </p>
 
               <div className="mt-8 flex flex-wrap items-center gap-3">
@@ -527,7 +498,7 @@ export default function App() {
               <div className="mt-9 flex flex-wrap gap-2.5">
                 {[
                   { Icon: PawIcon, label: "100% pettable" },
-                  { Icon: HeartOutline, label: "friends welcome" },
+                  { Icon: HeartOutline, label: "up to 8 cats" },
                   { Icon: MoonIcon, label: "0 stress" },
                   { Icon: CursorIcon, label: "press P to pet" },
                 ].map((c) => (
@@ -554,6 +525,7 @@ export default function App() {
         <Ticker />
         <About />
         <HowToPet />
+        <BrokenCountdown />
         <Wishlist />
       </main>
 

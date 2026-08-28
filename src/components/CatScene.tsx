@@ -17,11 +17,11 @@ const LEVELS: { name: string; at: number }[] = [
 ];
 
 const PHRASES: string[][] = [
-  ["mew?", "…oh. hi.", "you may look.", "*sniffs your sleeve* …you smell like 2007."],
+  ["mew?", "…oh. hi.", "you may look.", "*sniffs your cursor*"],
   ["mrrp!", "prrt prrt", "oh—pets. yes.", "*tail goes up*"],
-  ["purrrr…", "again! again!", "*tells you about the attic*", "*biscuits intensify*"],
-  ["PURRRRRR!!", "you're my human now", "*happy headbonk*", "wait till Bibi hears about you"],
-  ["the prophecy is true", "all my naps are yours", "*slow blink of true love*", "let's go find yesterday ♥"],
+  ["purrrr…", "again! again!", "mew mew ♥", "*biscuits intensify*"],
+  ["PURRRRRR!!", "you're my human now", "*happy headbonk*", "mewp mewp!!"],
+  ["the prophecy is true", "all my naps are yours", "*slow blink of true love*", "mreow!!!"],
 ];
 
 const BOOP_PHRASES = ["MEWP!", "the NOSE. really?", "*nose.exe stopped working*", "honk.", "that nose costs extra"];
@@ -52,14 +52,12 @@ export default function CatScene() {
   const bubbleTimer = useRef<number | null>(null);
   const napScheduled = useRef(false);
   const ambientTimer = useRef<number | null>(null);
-  const dilateTimer = useRef<number | null>(null);
 
   const [pets, setPets] = useState(0);
   const [meter, setMeter] = useState(0);
   const [naps, setNaps] = useState(0);
   const [sleeping, setSleeping] = useState(false);
   const [blink, setBlink] = useState(false);
-  const [dilated, setDilated] = useState(false);
   const [bubble, setBubble] = useState<{ id: number; text: string } | null>(null);
   const [hearts, setHearts] = useState<Heart[]>([]);
   const [pupils, setPupils] = useState({ x: 0, y: 0 });
@@ -101,12 +99,6 @@ export default function CatScene() {
     window.setTimeout(() => setSyncFlash(false), 900);
   }, []);
 
-  const dilate = useCallback(() => {
-    setDilated(true);
-    if (dilateTimer.current) window.clearTimeout(dilateTimer.current);
-    dilateTimer.current = window.setTimeout(() => setDilated(false), 800);
-  }, []);
-
   /* ---------------- interactions ---------------- */
 
   const doPet = useCallback(
@@ -133,7 +125,6 @@ export default function CatScene() {
       setPets(nextPets);
       setMeter(nextMeter);
       flashSync();
-      dilate();
       purr();
       spawnHearts(x, y, 2 + Math.floor(Math.random() * 2));
 
@@ -158,7 +149,7 @@ export default function CatScene() {
         }, 750);
       }
     },
-    [sleeping, pets, meter, showBubble, spawnHearts, flashSync, dilate]
+    [sleeping, pets, meter, showBubble, spawnHearts, flashSync]
   );
 
   const doBoop = useCallback(
@@ -171,12 +162,11 @@ export default function CatScene() {
         return;
       }
       setBoopTick((t) => t + 1);
-      dilate();
       boopSound();
       showBubble(pick(BOOP_PHRASES));
       spawnHearts(clientX - r.left, clientY - r.top, 1);
     },
-    [sleeping, doPet, showBubble, spawnHearts, dilate]
+    [sleeping, doPet, showBubble, spawnHearts]
   );
 
   const onPointerDown = (e: React.PointerEvent) => {
@@ -194,13 +184,12 @@ export default function CatScene() {
     if (!stage) return;
     const r = stage.getBoundingClientRect();
     const dx = (e.clientX - (r.left + r.width / 2)) / r.width;
-    const dy = (e.clientY - (r.top + r.height * 0.3)) / r.height;
-    setPupils({ x: clamp(dx * 10, -4, 4), y: clamp(dy * 8, -2.5, 3.5) });
+    const dy = (e.clientY - (r.top + r.height * 0.35)) / r.height;
+    setPupils({ x: clamp(dx * 10, -4, 4), y: clamp(dy * 8, -2.5, 3) });
   };
 
   /* ---------------- ambient life ---------------- */
 
-  /* blink loop */
   useEffect(() => {
     let t: number;
     const loop = () => {
@@ -214,7 +203,6 @@ export default function CatScene() {
     return () => window.clearTimeout(t);
   }, []);
 
-  /* keyboard: press P to pet */
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key.toLowerCase() !== "p" || e.repeat) return;
@@ -222,20 +210,19 @@ export default function CatScene() {
       if (!stage) return;
       const r = stage.getBoundingClientRect();
       if (r.top > window.innerHeight || r.bottom < 0) return;
-      doPet(r.left + r.width * 0.49, r.top + r.height * 0.42);
+      doPet(r.left + r.width * 0.5, r.top + r.height * 0.5);
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [doPet]);
 
-  /* love-level ambient hearts */
   useEffect(() => {
     if (levelIdx < 2) return;
     ambientTimer.current = window.setInterval(() => {
       const stage = stageRef.current;
       if (!stage) return;
       const r = stage.getBoundingClientRect();
-      spawnHearts(r.width * (0.35 + Math.random() * 0.3), r.height * 0.28, 1);
+      spawnHearts(r.width * (0.35 + Math.random() * 0.3), r.height * 0.3, 1);
     }, 2800);
     return () => {
       if (ambientTimer.current) window.clearInterval(ambientTimer.current);
@@ -244,13 +231,6 @@ export default function CatScene() {
 
   const napPct = Math.min(100, Math.round((meter / NAP_AT) * 100));
   const eyesClosed = blink || sleeping;
-
-  const pupilStyle: React.CSSProperties = {
-    transform: dilated ? "scaleX(1.6)" : "scaleX(1)",
-    transformOrigin: "center",
-    transformBox: "fill-box",
-    transition: "transform 0.3s ease",
-  };
 
   /* ------------------------------------------------------------------ */
 
@@ -266,7 +246,7 @@ export default function CatScene() {
         </p>
         <span className="flex items-center gap-1.5 text-[10px] font-extrabold tracking-widest text-sprout">
           <span className="w-1.5 h-1.5 rounded-full bg-sprout pulse-online" />
-          ONLINE
+          HOME ALONE
         </span>
       </div>
 
@@ -287,7 +267,7 @@ export default function CatScene() {
         {bubble && (
           <div
             key={bubble.id}
-            className="bubble-pop absolute top-[5%] left-[12%] z-20 bg-cream text-ink font-display font-medium text-sm md:text-base px-4 py-2 rounded-xl rounded-bl-sm shadow-lg"
+            className="bubble-pop absolute top-[5%] left-[8%] z-20 bg-cream text-ink font-display font-medium text-sm md:text-base px-4 py-2 rounded-xl rounded-bl-sm shadow-lg"
           >
             {bubble.text}
             <span className="absolute -bottom-1.5 left-3 w-3 h-3 bg-cream rotate-45" />
@@ -297,13 +277,13 @@ export default function CatScene() {
         {/* zzz while sleeping */}
         {sleeping && (
           <>
-            <span className="zzz left-[62%] top-[16%] text-lg" style={{ animationDelay: "0s" }}>
+            <span className="zzz left-[58%] top-[16%] text-lg" style={{ animationDelay: "0s" }}>
               z
             </span>
-            <span className="zzz left-[66%] top-[10%] text-2xl" style={{ animationDelay: "0.85s" }}>
+            <span className="zzz left-[62%] top-[10%] text-2xl" style={{ animationDelay: "0.85s" }}>
               z
             </span>
-            <span className="zzz left-[70%] top-[4%] text-3xl" style={{ animationDelay: "1.7s" }}>
+            <span className="zzz left-[66%] top-[4%] text-3xl" style={{ animationDelay: "1.7s" }}>
               Z
             </span>
           </>
@@ -340,209 +320,210 @@ export default function CatScene() {
           </span>
         </div>
 
-        <svg viewBox="0 0 420 440" className="relative z-10 w-full h-auto block" role="img" aria-label="Pip, a fluffy orange tabby cat">
+        <svg viewBox="0 0 460 420" className="relative z-10 w-full h-auto block" role="img" aria-label="Pip, an orange tabby cat sitting in a loaf">
           <defs>
-            <radialGradient id="furGrad" cx="42%" cy="32%" r="80%">
-              <stop offset="0%" stopColor="#f9bd77" />
-              <stop offset="55%" stopColor="#ef9f52" />
-              <stop offset="100%" stopColor="#d9803a" />
+            <radialGradient id="furBody" cx="50%" cy="32%" r="80%">
+              <stop offset="0%" stopColor="#f4b06a" />
+              <stop offset="55%" stopColor="#e2913f" />
+              <stop offset="100%" stopColor="#c9752c" />
             </radialGradient>
-            <radialGradient id="chestGrad" cx="50%" cy="28%" r="80%">
-              <stop offset="0%" stopColor="#fff1dc" />
-              <stop offset="100%" stopColor="#f3d6ab" />
+            <radialGradient id="furHead" cx="50%" cy="38%" r="75%">
+              <stop offset="0%" stopColor="#f6b876" />
+              <stop offset="60%" stopColor="#e2913f" />
+              <stop offset="100%" stopColor="#cf7c30" />
             </radialGradient>
-            <radialGradient id="irisGrad" cx="35%" cy="30%" r="85%">
-              <stop offset="0%" stopColor="#ffe49a" />
-              <stop offset="55%" stopColor="#f2b13e" />
-              <stop offset="100%" stopColor="#c67f22" />
+            <linearGradient id="bodyShade" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="55%" stopColor="rgba(58,28,8,0)" />
+              <stop offset="100%" stopColor="rgba(58,28,8,0.32)" />
+            </linearGradient>
+            <radialGradient id="iris" cx="50%" cy="42%" r="60%">
+              <stop offset="0%" stopColor="#ffe3a3" />
+              <stop offset="35%" stopColor="#f2ae44" />
+              <stop offset="72%" stopColor="#c47a1f" />
+              <stop offset="100%" stopColor="#8a4a12" />
             </radialGradient>
           </defs>
 
           {/* ground shadow */}
-          <ellipse cx="210" cy="414" rx="150" ry="18" fill="#0e1118" opacity="0.55" />
+          <ellipse cx="230" cy="372" rx="172" ry="20" fill="#10121a" opacity="0.55" />
 
           <g key={`sq-${pets}`} className="cat-squish">
-            {/* tail (behind body) */}
+            {/* tail, wrapped around the loaf */}
             <g className="cat-tail">
-              <path d="M 302 336 C 366 332 398 282 376 232" fill="none" stroke="#e8934a" strokeWidth="32" strokeLinecap="round" />
               <path
-                d="M 302 336 C 366 332 398 282 376 232"
+                d="M 352 318 C 394 322 404 350 358 360 C 312 370 254 367 206 361"
                 fill="none"
-                stroke="#b96a2b"
-                strokeWidth="32"
-                strokeLinecap="butt"
-                strokeDasharray="14 30"
-                opacity="0.85"
+                stroke="url(#furBody)"
+                strokeWidth="25"
+                strokeLinecap="round"
               />
-              <circle cx="376" cy="230" r="16" fill="#a85a20" />
+              <circle cx="206" cy="361" r="12.5" fill="#7c3f12" />
+              <g stroke="#b96b2d" strokeWidth="9" strokeLinecap="round" opacity="0.85">
+                <path d="M 372 330 L 388 348" />
+                <path d="M 342 347 L 346 365" />
+                <path d="M 296 355 L 298 372" />
+                <path d="M 248 358 L 248 373" />
+              </g>
             </g>
 
-            {/* body */}
+            {/* body loaf */}
             <g className={sleeping ? "cat-breathe" : undefined}>
               <path
-                d="M 210 200 C 140 206 96 262 94 322 C 92 372 128 408 210 410 C 292 408 328 372 326 322 C 324 262 280 206 210 200 Z"
-                fill="url(#furGrad)"
+                d="M 88 302 C 88 210 148 168 230 168 C 312 168 372 210 372 302 C 372 338 316 354 230 354 C 144 354 88 338 88 302 Z"
+                fill="url(#furBody)"
               />
-              {/* haunch shading */}
-              <path d="M 122 292 C 112 330 118 372 148 396" fill="none" stroke="#c9762f" strokeWidth="5" strokeLinecap="round" opacity="0.5" />
-              <path d="M 298 292 C 308 330 302 372 272 396" fill="none" stroke="#c9762f" strokeWidth="5" strokeLinecap="round" opacity="0.5" />
-              {/* tabby stripes on flanks & shoulders */}
-              <g stroke="#b96a2b" strokeLinecap="round" fill="none" opacity="0.75">
-                <path d="M 112 262 q 20 6 30 26" strokeWidth="11" />
-                <path d="M 104 300 q 24 8 36 30" strokeWidth="12" />
-                <path d="M 112 342 q 22 10 30 28" strokeWidth="11" />
-                <path d="M 308 262 q -20 6 -30 26" strokeWidth="11" />
-                <path d="M 316 300 q -24 8 -36 30" strokeWidth="12" />
-                <path d="M 308 342 q -22 10 -30 28" strokeWidth="11" />
-                <path d="M 150 222 q 16 10 20 26" strokeWidth="10" />
-                <path d="M 270 222 q -16 10 -20 26" strokeWidth="10" />
+              <path
+                d="M 88 302 C 88 210 148 168 230 168 C 312 168 372 210 372 302 C 372 338 316 354 230 354 C 144 354 88 338 88 302 Z"
+                fill="url(#bodyShade)"
+              />
+              {/* shoulder stripes */}
+              <g stroke="#b96b2d" strokeWidth="13" strokeLinecap="round" opacity="0.8" fill="none">
+                <path d="M 114 252 q 22 -30 52 -42" />
+                <path d="M 106 284 q 26 -26 56 -36" />
+                <path d="M 346 252 q -22 -30 -52 -42" />
+                <path d="M 354 284 q -26 -26 -56 -36" />
               </g>
               {/* chest fluff */}
-              <ellipse cx="210" cy="330" rx="62" ry="78" fill="url(#chestGrad)" />
-              <g stroke="#ffffff" strokeWidth="3" strokeLinecap="round" opacity="0.25" fill="none">
-                <path d="M 196 296 q 4 12 0 20" />
-                <path d="M 224 296 q -4 12 0 20" />
-                <path d="M 210 310 q 3 12 0 20" />
+              <ellipse cx="230" cy="316" rx="56" ry="34" fill="#f7e3c4" opacity="0.95" />
+              <g stroke="#e8cba0" strokeWidth="3" strokeLinecap="round" opacity="0.6" fill="none">
+                <path d="M 206 300 q -4 14 2 26" />
+                <path d="M 230 298 q 0 16 -2 28" />
+                <path d="M 254 300 q 4 14 -2 26" />
               </g>
-              {/* front legs */}
-              <path d="M 176 306 C 170 342 168 372 174 398 L 206 398 C 210 372 208 340 204 308 Z" fill="#e08c42" />
-              <path d="M 216 308 C 212 340 212 372 214 398 L 246 398 C 252 372 250 342 244 306 Z" fill="#e08c42" />
-              <ellipse cx="188" cy="400" rx="24" ry="12" fill="#f2a65e" />
-              <ellipse cx="232" cy="400" rx="24" ry="12" fill="#f2a65e" />
-              <g stroke="#b96a2b" strokeWidth="2.5" strokeLinecap="round">
-                <path d="M 182 392 v 10 M 194 392 v 10" />
-                <path d="M 226 392 v 10 M 238 392 v 10" />
+              {/* tucked front paws */}
+              <rect x="180" y="330" width="54" height="20" rx="10" fill="#eda256" />
+              <rect x="226" y="330" width="54" height="20" rx="10" fill="#eda256" />
+              <g stroke="#b96b2d" strokeWidth="2.5" strokeLinecap="round" opacity="0.8">
+                <path d="M 200 336 v 9" />
+                <path d="M 214 336 v 9" />
+                <path d="M 246 336 v 9" />
+                <path d="M 260 336 v 9" />
+              </g>
+              {/* fur texture strokes */}
+              <g stroke="#c9752c" strokeWidth="3" strokeLinecap="round" opacity="0.4" fill="none">
+                <path d="M 122 306 q 4 12 12 18" />
+                <path d="M 338 306 q -4 12 -12 18" />
               </g>
             </g>
 
-            {/* neck ruff */}
-            <g stroke="#f7dcb8" strokeWidth="3" strokeLinecap="round" opacity="0.55" fill="none">
-              <path d="M 172 226 q 8 14 20 18" />
-              <path d="M 248 226 q -8 14 -20 18" />
-              <path d="M 210 230 q 0 12 0 20" />
+            {/* yarn ball */}
+            <g className="yarn">
+              <circle cx="92" cy="366" r="24" fill="#66c0f4" />
+              <path
+                d="M 70 366 a 22 22 0 0 1 44 0 M 74 355 q 18 13 36 0 M 74 377 q 18 -13 36 0"
+                fill="none"
+                stroke="#2a475e"
+                strokeWidth="3"
+                strokeLinecap="round"
+              />
+              <path d="M 114 374 q 24 12 42 4" fill="none" stroke="#66c0f4" strokeWidth="3" strokeLinecap="round" opacity="0.8" />
             </g>
 
             {/* head */}
             <g className="cat-head">
               {/* ears */}
-              <path d="M 138 96 C 124 70 116 40 120 18 C 121 10 130 10 136 16 C 156 34 174 50 188 60 C 168 68 150 80 138 96 Z" fill="url(#furGrad)" />
-              <path d="M 282 96 C 296 70 304 40 300 18 C 299 10 290 10 284 16 C 264 34 246 50 232 60 C 252 68 270 80 282 96 Z" fill="url(#furGrad)" />
-              <path d="M 140 84 C 132 66 128 46 131 32 C 144 44 160 56 172 62 C 160 68 148 76 140 84 Z" fill="#e8917f" opacity="0.85" />
-              <path d="M 280 84 C 288 66 292 46 289 32 C 276 44 260 56 248 62 C 260 68 272 76 280 84 Z" fill="#e8917f" opacity="0.85" />
-              <g stroke="#f7dcb8" strokeWidth="2.5" strokeLinecap="round" opacity="0.7" fill="none">
-                <path d="M 134 60 q -5 10 -3 18" />
-                <path d="M 286 60 q 5 10 3 18" />
+              <path d="M 168 108 L 150 26 L 220 74 Z" fill="#e2913f" />
+              <path d="M 292 108 L 310 26 L 240 74 Z" fill="#e2913f" />
+              <path d="M 176 96 L 165 44 L 210 74 Z" fill="#d98a8f" opacity="0.8" />
+              <path d="M 284 96 L 295 44 L 250 74 Z" fill="#d98a8f" opacity="0.8" />
+              <g stroke="#f7e3c4" strokeWidth="3" strokeLinecap="round" opacity="0.55" fill="none">
+                <path d="M 176 86 q 9 -7 18 -9" />
+                <path d="M 284 86 q -9 -7 -18 -9" />
               </g>
 
-              <ellipse cx="210" cy="146" rx="86" ry="76" fill="url(#furGrad)" />
+              {/* skull + cheek tufts */}
+              <ellipse cx="230" cy="152" rx="92" ry="78" fill="url(#furHead)" />
+              <path d="M 146 168 l -15 6 l 14 5 l -13 9 l 16 3 z" fill="#e2913f" />
+              <path d="M 314 168 l 15 6 l -14 5 l 13 9 l -16 3 z" fill="#e2913f" />
 
-              {/* cheek fluff */}
-              <g stroke="#e8934a" strokeWidth="3" strokeLinecap="round" opacity="0.8" fill="none">
-                <path d="M 130 168 l -14 6 M 132 182 l -16 4 M 136 196 l -13 8" />
-                <path d="M 290 168 l 14 6 M 288 182 l 16 4 M 284 196 l 13 8" />
-              </g>
-
-              {/* tabby M on forehead */}
-              <g stroke="#b96a2b" strokeWidth="7" strokeLinecap="round" fill="none" opacity="0.85">
-                <path d="M 210 74 L 210 96" />
-                <path d="M 190 78 q 3 12 2 22" />
-                <path d="M 230 78 q -3 12 -2 22" />
-                <path d="M 172 88 q 6 10 6 18" />
-                <path d="M 248 88 q -6 10 -6 18" />
+              {/* forehead M */}
+              <g stroke="#b96b2d" strokeWidth="5" strokeLinecap="round" opacity="0.85" fill="none">
+                <path d="M 230 84 v 26" />
+                <path d="M 210 88 q 2 12 6 22" />
+                <path d="M 250 88 q -2 12 -6 22" />
+                <path d="M 192 96 q 6 10 12 18" />
+                <path d="M 268 96 q -6 10 -12 18" />
               </g>
               {/* cheek stripes */}
-              <g stroke="#b96a2b" strokeWidth="6" strokeLinecap="round" fill="none" opacity="0.7">
-                <path d="M 128 146 q 16 2 26 10" />
-                <path d="M 126 162 q 18 4 28 12" />
-                <path d="M 292 146 q -16 2 -26 10" />
-                <path d="M 294 162 q -18 4 -28 12" />
+              <g stroke="#b96b2d" strokeWidth="5" strokeLinecap="round" opacity="0.65" fill="none">
+                <path d="M 152 148 q 14 4 24 2" />
+                <path d="M 150 166 q 14 2 24 0" />
+                <path d="M 308 148 q -14 4 -24 2" />
+                <path d="M 310 166 q -14 2 -24 0" />
               </g>
 
-              {/* blush — appears once you're friends */}
+              {/* blush, once you're friends */}
               {levelIdx >= 2 && (
                 <>
-                  <ellipse cx="138" cy="186" rx="14" ry="8" fill="#ff8fb3" opacity="0.4" />
-                  <ellipse cx="282" cy="186" rx="14" ry="8" fill="#ff8fb3" opacity="0.4" />
+                  <ellipse cx="158" cy="182" rx="13" ry="8" fill="#ff8fb3" opacity="0.5" />
+                  <ellipse cx="302" cy="182" rx="13" ry="8" fill="#ff8fb3" opacity="0.5" />
                 </>
               )}
 
-              {/* eyes */}
-              {[
-                { cx: 166, rot: -6 },
-                { cx: 254, rot: 6 },
-              ].map(({ cx, rot }) => (
-                <g key={cx} transform={`translate(${cx} 140) rotate(${rot})`}>
-                  <ellipse rx="19" ry="15" fill="url(#irisGrad)" stroke="#7a4a1e" strokeOpacity="0.5" strokeWidth="2" />
+              {/* eyes — amber, slit pupils, tracking */}
+              {[192, 268].map((cx) => (
+                <g key={cx} transform={`translate(${cx} 148)`}>
+                  <ellipse rx="21" ry="15.5" fill="#20130a" />
+                  <ellipse rx="18.5" ry="13.5" fill="url(#iris)" />
                   <g transform={`translate(${pupils.x} ${pupils.y})`}>
-                    <g style={pupilStyle}>
-                      <ellipse rx="5.5" ry="12" fill="#1d1424" />
-                    </g>
+                    <ellipse
+                      rx={happyMouth ? 7.4 : 4.6}
+                      ry="11.5"
+                      fill="#160d06"
+                      style={{ transition: "rx 0.35s ease" } as React.CSSProperties}
+                    />
                   </g>
-                  <circle cx="-6" cy="-5" r="3.2" fill="#fff" opacity="0.9" />
-                  <circle cx="6" cy="4" r="1.8" fill="#fff" opacity="0.8" />
-                  <ellipse className={`eyelid ${eyesClosed ? "closed" : ""}`} rx="20" ry="16" fill="#e8934a" />
-                  {sleeping && <path d="M -16 0 Q 0 9 16 0" fill="none" stroke="#4a2c1a" strokeWidth="4" strokeLinecap="round" />}
+                  <circle cx="-6.5" cy="-5.5" r="4.2" fill="#fff" opacity="0.95" />
+                  <circle cx="6" cy="5" r="2" fill="#fff" opacity="0.7" />
+                  <ellipse className={`eyelid ${eyesClosed ? "closed" : ""}`} rx="22" ry="16.5" fill="#e2913f" />
+                  {sleeping && <path d="M -16 1 q 16 8 32 0" fill="none" stroke="#4a2a12" strokeWidth="4" strokeLinecap="round" />}
                 </g>
               ))}
 
               {/* muzzle */}
-              <ellipse cx="210" cy="192" rx="34" ry="20" fill="#e8c79a" opacity="0.55" />
-              <ellipse cx="194" cy="184" rx="24" ry="16" fill="#f7dcb8" />
-              <ellipse cx="226" cy="184" rx="24" ry="16" fill="#f7dcb8" />
-              <ellipse cx="210" cy="206" rx="15" ry="9" fill="#f7dcb8" />
-              {/* whisker dots */}
-              <g fill="#c9a06a" opacity="0.65">
-                <circle cx="186" cy="176" r="1.2" />
-                <circle cx="190" cy="182" r="1.2" />
-                <circle cx="185" cy="188" r="1.2" />
-                <circle cx="234" cy="176" r="1.2" />
-                <circle cx="230" cy="182" r="1.2" />
-                <circle cx="235" cy="188" r="1.2" />
-              </g>
+              <ellipse cx="230" cy="194" rx="36" ry="24" fill="#f7e3c4" />
 
               {/* nose (boopable) */}
               <g key={`boop-${boopTick}`} className={boopTick > 0 ? "nose-boop" : undefined}>
-                <path d="M 201 168 Q 210 163 219 168 Q 217 178 210 179 Q 203 178 201 168 Z" fill="#e28693" />
-                <path d="M 204 167 q 6 -3 12 0" fill="none" stroke="#f2a8b4" strokeWidth="2" strokeLinecap="round" />
+                <path d="M 219 176 Q 230 169 241 176 Q 238 188 230 189 Q 222 188 219 176 Z" fill="#dd8395" />
+                <circle cx="225.5" cy="175.5" r="2" fill="#fff" opacity="0.5" />
               </g>
-              <circle cx="210" cy="172" r="15" fill="transparent" onPointerDown={onNoseDown} />
+              <circle cx="230" cy="180" r="19" fill="transparent" onPointerDown={onNoseDown} />
 
               {/* philtrum + mouth */}
-              <path d="M 210 179 L 210 186" stroke="#b98d68" strokeWidth="2" strokeLinecap="round" />
+              <path d="M 230 189 v 7" stroke="#a06a4a" strokeWidth="2.5" strokeLinecap="round" />
               <path
-                d="M 210 186 q -7 7 -14 1 M 210 186 q 7 7 14 1"
+                d="M 216 202 q 7 8 14 1 q 7 7 14 -1"
                 fill="none"
-                stroke="#6b4a3a"
-                strokeWidth="3"
+                stroke="#5b3040"
+                strokeWidth="3.5"
                 strokeLinecap="round"
                 opacity={happyMouth ? 0 : 1}
                 style={{ transition: "opacity 0.15s" }}
               />
               <g opacity={happyMouth ? 1 : 0} style={{ transition: "opacity 0.15s" }}>
-                <path d="M 196 186 Q 210 204 224 186 Z" fill="#5b2e42" />
-                <ellipse cx="210" cy="193" rx="7" ry="4" fill="#ff8fb3" />
+                <path d="M 214 200 q 16 20 32 0 z" fill="#5b2e42" />
+                <ellipse cx="230" cy="207" rx="8" ry="4" fill="#f29cb0" />
+              </g>
+
+              {/* whisker dots */}
+              <g fill="#c9974f">
+                <circle cx="210" cy="190" r="1.6" />
+                <circle cx="205" cy="196" r="1.6" />
+                <circle cx="212" cy="201" r="1.6" />
+                <circle cx="250" cy="190" r="1.6" />
+                <circle cx="255" cy="196" r="1.6" />
+                <circle cx="248" cy="201" r="1.6" />
               </g>
 
               {/* whiskers */}
-              <g stroke="#fff0d8" strokeWidth="1.8" strokeLinecap="round" opacity="0.8" fill="none">
-                <path d="M 180 166 Q 140 152 108 150" />
-                <path d="M 178 172 Q 130 162 92 166" />
-                <path d="M 176 180 Q 128 180 90 190" />
-                <path d="M 178 188 Q 136 198 104 210" />
-                <path d="M 240 166 Q 280 152 312 150" />
-                <path d="M 242 172 Q 290 162 328 166" />
-                <path d="M 244 180 Q 292 180 330 190" />
-                <path d="M 242 188 Q 284 198 316 210" />
-              </g>
-
-              {/* crown fur texture */}
-              <g stroke="#d9803a" strokeWidth="3" strokeLinecap="round" opacity="0.6" fill="none">
-                <path d="M 186 74 q 2 10 0 16" />
-                <path d="M 234 74 q -2 10 0 16" />
-              </g>
-              <g stroke="#ffd9a8" strokeWidth="2.5" strokeLinecap="round" opacity="0.5" fill="none">
-                <path d="M 150 160 q 6 14 4 22" />
-                <path d="M 270 160 q -6 14 -4 22" />
+              <g stroke="#fdf3e0" strokeWidth="2.2" strokeLinecap="round" opacity="0.85" fill="none">
+                <path d="M 202 186 q -40 -6 -74 2" />
+                <path d="M 202 194 q -42 2 -72 12" />
+                <path d="M 204 178 q -38 -14 -70 -12" />
+                <path d="M 258 186 q 40 -6 74 2" />
+                <path d="M 258 194 q 42 2 72 12" />
+                <path d="M 256 178 q 38 -14 70 -12" />
               </g>
             </g>
           </g>
