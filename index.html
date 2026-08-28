@@ -23,23 +23,59 @@
   <body>
     <div id="root"></div>
 
-    <!-- Failsafe: if the app never mounts (e.g. this dev shell was opened
-         straight from disk), show a friendly note instead of a blank page. -->
+    <!--
+      Failsafe + forwarder.
+      · Opened straight from disk (file://)  → walks you to dist/index.html.
+      · Served by the dev server             → does nothing; React mounts.
+      · If the app somehow never mounts      → friendly note instead of a blank page.
+    -->
     <script>
-      window.addEventListener("load", function () {
-        window.setTimeout(function () {
-          var root = document.getElementById("root");
-          if (!root || root.children.length > 0) return;
+      (function () {
+        var root = document.getElementById("root");
+        var here = location.href.replace(/\\/g, "/");
+        var isBuiltFile = here.indexOf("/dist/index.html") !== -1;
+
+        function card(title, body) {
+          if (!root) return;
           root.innerHTML =
             '<div style="min-height:100vh;display:grid;place-items:center;background:#171a21;color:#c7d5e0;font-family:Verdana,Geneva,sans-serif;padding:24px">' +
-            '<div style="max-width:520px;background:#1b2838;border:1px solid rgba(102,192,244,.35);border-radius:10px;padding:32px;text-align:center">' +
+            '<div style="max-width:540px;background:#1b2838;border:1px solid rgba(102,192,244,.35);border-radius:10px;padding:32px;text-align:center">' +
             '<div style="font-size:44px;line-height:1">🐾</div>' +
-            '<h1 style="margin:14px 0 8px;font-size:22px;color:#fff">You found the dev shell!</h1>' +
-            '<p style="margin:0 0 6px;line-height:1.6;font-size:14px">This <b>index.html</b> only works while the dev server is running — opened by itself it stays blank, and that is boring for everyone.</p>' +
-            '<p style="margin:0;line-height:1.6;font-size:14px">The finished, double-clickable website lives in <b style="color:#66c0f4">dist/index.html</b>. Double-click that one instead. Pip is waiting there.</p>' +
+            '<h1 style="margin:14px 0 8px;font-size:22px;color:#fff">' +
+            title +
+            "</h1>" +
+            '<p style="margin:0;line-height:1.65;font-size:14px">' +
+            body +
+            "</p>" +
             "</div></div>";
-        }, 400);
-      });
+        }
+
+        /* 1 · opened from disk → forward to the real website */
+        if (location.protocol === "file:" && !isBuiltFile) {
+          card(
+            "Walking over to the real website…",
+            'This <b>index.html</b> is just the dev shell. Taking you to ' +
+              '<b style="color:#66c0f4">dist/index.html</b> — Pip is waiting there. ' +
+              'Nothing happened? <a href="dist/index.html" style="color:#66c0f4">Click here instead.</a>'
+          );
+          window.setTimeout(function () {
+            location.replace("dist/index.html");
+          }, 800);
+          return;
+        }
+
+        /* 2 · app never mounted → friendly note */
+        window.addEventListener("load", function () {
+          window.setTimeout(function () {
+            if (!root || root.children.length > 0) return;
+            card(
+              "You found the dev shell!",
+              "This <b>index.html</b> only works while the dev server is running — opened by itself it stays blank, and that is boring for everyone. " +
+                'The finished, double-clickable website lives in <b style="color:#66c0f4">dist/index.html</b>. Double-click that one instead.'
+            );
+          }, 600);
+        });
+      })();
     </script>
 
     <script type="module" src="/src/main.tsx"></script>
