@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Whiskers of Yesterday — a cozy cat game, coming soon to Steam</title>
+    <meta
+      name="description"
+      content="Whiskers of Yesterday is a soft little cozy cat game coming soon to Steam. Pet Pip, boop his nose, sync your pets to the cloud."
+    />
+    <meta name="theme-color" content="#171a21" />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23171a21'/%3E%3Cpath d='M16 26 L13 9 L29 18 Z M48 26 L51 9 L35 18 Z' fill='%23f2a65e'/%3E%3Ccircle cx='32' cy='35' r='19' fill='%23f2a65e'/%3E%3Ccircle cx='25' cy='31' r='2.7' fill='%23171a21'/%3E%3Ccircle cx='39' cy='31' r='2.7' fill='%23171a21'/%3E%3Cpath d='M29.5 39.5 q2.5 2.8 5 0' stroke='%23171a21' stroke-width='2.2' fill='none' stroke-linecap='round'/%3E%3Cpath d='M32 36 l-2.2 2.3 h4.4 z' fill='%23e27396'/%3E%3C/svg%3E"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&family=Nunito:ital,wght@0,400;0,600;0,700;0,800;0,900;1,400&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div id="root"></div>
+
+    <!--
+      Failsafe + forwarder.
+      · Opened straight from disk (file://)  → walks you to dist/index.html.
+      · Served by the dev server             → does nothing; React mounts.
+      · If the app somehow never mounts      → friendly note instead of a blank page.
+    -->
+    <script>
+      (function () {
+        var root = document.getElementById("root");
+        var here = location.href.replace(/\\/g, "/");
+        var isBuiltFile = here.indexOf("/dist/index.html") !== -1;
+
+        function card(title, body) {
+          if (!root) return;
+          root.innerHTML =
+            '<div style="min-height:100vh;display:grid;place-items:center;background:#171a21;color:#c7d5e0;font-family:Verdana,Geneva,sans-serif;padding:24px">' +
+            '<div style="max-width:540px;background:#1b2838;border:1px solid rgba(102,192,244,.35);border-radius:10px;padding:32px;text-align:center">' +
+            '<div style="font-size:44px;line-height:1">🐾</div>' +
+            '<h1 style="margin:14px 0 8px;font-size:22px;color:#fff">' +
+            title +
+            "</h1>" +
+            '<p style="margin:0;line-height:1.65;font-size:14px">' +
+            body +
+            "</p>" +
+            "</div></div>";
+        }
+
+        /* 1 · opened from disk → forward to the real website */
+        if (location.protocol === "file:" && !isBuiltFile) {
+          card(
+            "Walking over to the real website…",
+            'This <b>index.html</b> is just the dev shell. Taking you to ' +
+              '<b style="color:#66c0f4">dist/index.html</b> — Pip is waiting there. ' +
+              'Nothing happened? <a href="dist/index.html" style="color:#66c0f4">Click here instead.</a>'
+          );
+          window.setTimeout(function () {
+            location.replace("dist/index.html");
+          }, 800);
+          return;
+        }
+
+        /* 2 · app never mounted → friendly note */
+        window.addEventListener("load", function () {
+          window.setTimeout(function () {
+            if (!root || root.children.length > 0) return;
+            card(
+              "You found the dev shell!",
+              "This <b>index.html</b> only works while the dev server is running — opened by itself it stays blank, and that is boring for everyone. " +
+                'The finished, double-clickable website lives in <b style="color:#66c0f4">dist/index.html</b>. Double-click that one instead.'
+            );
+          }, 600);
+        });
+      })();
+    </script>
+
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
