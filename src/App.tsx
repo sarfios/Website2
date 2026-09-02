@@ -27,8 +27,8 @@ const IMG_SUITCASE =
 const SUPPORT_EMAIL = "support@whiskersofyesterday.com";
 const MAILTO = `mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent("Meow — question about Whiskers of Yesterday")}`;
 
-const DISCORD_URL = "https://discord.gg/QqVnuZVpe5";
-const DISCORD_HANDLE = "discord.gg/QqVnuZVpe5";
+const DISCORD_URL = "https://discord.gg/uHKUJfrKQm";
+const DISCORD_HANDLE = "discord.gg/uHKUJfrKQm";
 
 /* ------------------------------------------------------------------ */
 /* ambient background                                                  */
