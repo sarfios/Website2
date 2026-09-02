@@ -3,6 +3,7 @@ import BrokenCountdown from "./components/BrokenCountdown";
 import { useReveal } from "./hooks/useReveal";
 import {
   CatLogo,
+  DiscordIcon,
   EnvelopeIcon,
   FishIcon,
   HeartOutline,
@@ -25,6 +26,9 @@ const IMG_SUITCASE =
 
 const SUPPORT_EMAIL = "support@whiskersofyesterday.com";
 const MAILTO = `mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent("Meow — question about Whiskers of Yesterday")}`;
+
+const DISCORD_URL = "https://discord.gg/QqVnuZVpe5";
+const DISCORD_HANDLE = "discord.gg/QqVnuZVpe5";
 
 /* ------------------------------------------------------------------ */
 /* ambient background                                                  */
@@ -88,6 +92,7 @@ function TopBar() {
           {[
             ["Countdown", "#when"],
             ["The game", "#about"],
+            ["The den", "#den"],
             ["Wishlist", "#wishlist"],
             ["Contact", "#contact"],
           ].map(([label, href]) => (
@@ -101,7 +106,17 @@ function TopBar() {
           ))}
         </nav>
 
-        <div className="ml-auto md:ml-0">
+        <div className="ml-auto md:ml-0 flex items-center gap-2">
+          <a
+            href={DISCORD_URL}
+            target="_blank"
+            rel="noreferrer"
+            aria-label="Join the Discord"
+            title="Join the den"
+            className="p-2 rounded-md border border-white/10 text-frost/70 hover:text-white hover:bg-[#5865F2] hover:border-[#5865F2] transition-colors"
+          >
+            <DiscordIcon className="w-[18px] h-[18px]" />
+          </a>
           <a
             href="#wishlist"
             className="inline-flex items-center gap-1.5 text-sm font-extrabold text-ink bg-[linear-gradient(to_right,#8bc53a,#588a1b)] hover:brightness-110 active:scale-95 transition px-3.5 py-2 rounded-sm"
@@ -150,13 +165,21 @@ function Masthead() {
               Wishlist on Steam
             </a>
             <a
-              href={MAILTO}
-              className="inline-flex items-center gap-2.5 font-bold text-frost/85 border border-white/15 hover:border-mist hover:text-mist px-6 py-3.5 rounded-sm transition-colors"
+              href={DISCORD_URL}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-2.5 font-extrabold text-white bg-[#5865F2] hover:bg-[#4752C4] hover:-translate-y-0.5 active:scale-95 px-6 py-3.5 rounded-sm shadow-[0_8px_30px_rgba(88,101,242,0.35)] transition-all"
             >
-              <EnvelopeIcon className="w-5 h-5" />
-              Say hi to Pip
+              <DiscordIcon className="w-5 h-5" />
+              Join the Discord
             </a>
           </div>
+          <p className="mt-3.5 text-xs font-semibold text-frost/40">
+            or whisper to{" "}
+            <a href={MAILTO} className="text-mist hover:text-frost hover:underline transition-colors">
+              {SUPPORT_EMAIL}
+            </a>
+          </p>
 
           <div className="mt-9 flex flex-wrap gap-2.5">
             {[
@@ -213,6 +236,7 @@ const TICKER_ITEMS = [
   "Suitcase approved",
   "No timers · no losing",
   "Unlimited naps",
+  "Discord den open",
   "Purr-powered engine",
 ];
 
@@ -330,6 +354,165 @@ function About() {
 }
 
 /* ------------------------------------------------------------------ */
+/* the discord den                                                     */
+/* ------------------------------------------------------------------ */
+
+const CHANNELS = [
+  { name: "the-den", note: "welcome mat" },
+  { name: "memory-jars", note: "screenshot dump" },
+  { name: "cat-pics", note: "mandatory" },
+  { name: "bug-hunting", note: "snags & sneezes" },
+];
+
+function DiscordDen() {
+  const [copied, setCopied] = useState(false);
+
+  const copyInvite = () => {
+    const done = () => {
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 2200);
+    };
+    const fallback = () => {
+      try {
+        const ta = document.createElement("textarea");
+        ta.value = DISCORD_URL;
+        ta.style.position = "fixed";
+        ta.style.opacity = "0";
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand("copy");
+        document.body.removeChild(ta);
+      } catch {
+        /* noop */
+      }
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(DISCORD_URL).then(done).catch(() => {
+        fallback();
+        done();
+      });
+    } else {
+      fallback();
+      done();
+    }
+  };
+
+  return (
+    <section id="den" className="relative z-10 scroll-mt-24 max-w-6xl mx-auto px-5 py-24 md:py-28">
+      <div className="reveal relative overflow-hidden rounded-lg border border-white/15 bg-[linear-gradient(120deg,#5865F2_0%,#4752C4_60%,#3d46a8_100%)] shadow-[0_40px_100px_-30px_rgba(88,101,242,0.55)]">
+        {/* watermark */}
+        <DiscordIcon className="absolute -right-12 -bottom-16 w-72 h-72 text-white/[0.07] rotate-12 pointer-events-none" />
+        <PawIcon className="absolute -left-8 -top-10 w-40 h-40 text-white/[0.06] -rotate-12 pointer-events-none" />
+
+        <div className="relative grid md:grid-cols-[1.05fr_0.95fr] gap-12 p-8 md:p-12 items-center">
+          {/* pitch */}
+          <div>
+            <p className="inline-flex items-center gap-2 text-[11px] font-extrabold tracking-[0.24em] uppercase text-white/85 bg-black/20 border border-white/25 rounded-full px-3.5 py-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-sprout-light pulse-online" />
+              Pip is online — napping in #the-den
+            </p>
+
+            <h2 className="font-display font-semibold text-white text-4xl md:text-6xl mt-6 leading-[1.02]">
+              The den is <span className="text-cream">open.</span>
+            </h2>
+            <p className="mt-5 text-white/80 leading-relaxed max-w-md">
+              Dev updates, cozy screenshots, and one channel where cat pictures are mandatory. Come claim your spot on
+              the good sofa before launch day.
+            </p>
+
+            <div className="mt-7 flex items-center gap-3 flex-wrap">
+              <span className="text-[10px] font-extrabold tracking-[0.22em] uppercase text-white/55">Invite</span>
+              <code className="font-bold text-sm text-cream bg-black/25 border border-white/20 rounded-sm px-3.5 py-2">
+                {DISCORD_HANDLE}
+              </code>
+            </div>
+
+            <div className="mt-7 flex flex-wrap items-center gap-3">
+              <a
+                href={DISCORD_URL}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-2.5 font-extrabold text-[#5865F2] bg-white hover:bg-cream hover:-translate-y-0.5 active:scale-95 px-6 py-3.5 rounded-sm shadow-[0_12px_35px_rgba(0,0,0,0.3)] transition-all"
+              >
+                <DiscordIcon className="w-5 h-5" />
+                Join the Discord
+              </a>
+              <button
+                onClick={copyInvite}
+                className={`inline-flex items-center gap-2.5 font-bold px-6 py-3.5 rounded-sm border transition-all active:scale-95 ${
+                  copied
+                    ? "border-sprout-light/70 text-sprout-light bg-black/20"
+                    : "border-white/35 text-white hover:bg-white/10"
+                }`}
+              >
+                {copied ? "copied ✓" : "Copy invite"}
+              </button>
+            </div>
+          </div>
+
+          {/* server card */}
+          <div className="relative">
+            <div className="rotate-1 hover:rotate-0 transition-transform duration-500 ease-out rounded-lg overflow-hidden bg-[#313338] border border-black/40 shadow-[0_30px_70px_-20px_rgba(0,0,0,0.7)]">
+              {/* banner */}
+              <div className="h-16 bg-[linear-gradient(120deg,#2a475e,#5865F2)] relative">
+                <PawIcon className="absolute right-4 top-4 w-5 h-5 text-white/30" />
+              </div>
+              <div className="px-5 pb-5">
+                <div className="flex items-end gap-3">
+                  <span className="-mt-7 w-14 h-14 rounded-full bg-[#5865F2] border-[5px] border-[#313338] grid place-items-center shrink-0">
+                    <CatLogo className="w-8 h-8" />
+                  </span>
+                  <div className="pb-0.5">
+                    <p className="font-display font-semibold text-white leading-tight">Whiskers of Yesterday</p>
+                    <p className="mt-0.5 flex items-center gap-2 text-xs font-bold">
+                      <span className="flex items-center gap-1.5 text-sprout-light">
+                        <span className="w-2 h-2 rounded-full bg-sprout-light pulse-online" />
+                        187 online
+                      </span>
+                      <span className="text-white/35">· 2,412 cozy people</span>
+                    </p>
+                  </div>
+                </div>
+
+                <p className="mt-5 text-[10px] font-extrabold tracking-[0.2em] uppercase text-white/30">
+                  Text channels
+                </p>
+                <ul className="mt-2 space-y-0.5">
+                  {CHANNELS.map((c) => (
+                    <li
+                      key={c.name}
+                      className="group flex items-center gap-2 rounded-sm px-2.5 py-2 text-sm font-bold text-white/55 hover:text-white hover:bg-white/5 hover:translate-x-1 transition-all cursor-default"
+                    >
+                      <span className="text-white/30 group-hover:text-white/60 transition-colors">#</span>
+                      {c.name}
+                      <span className="ml-auto text-[10px] font-extrabold tracking-wide uppercase text-white/25 group-hover:text-cream/60 transition-colors">
+                        {c.note}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+
+                <div className="mt-4 pt-3.5 border-t border-white/10 flex items-center gap-2.5 text-xs font-bold text-white/50">
+                  <span className="w-5 h-5 rounded-full bg-tabby grid place-items-center text-[9px] font-black text-ink">
+                    P
+                  </span>
+                  Pip is typing
+                  <span className="flex items-center text-white/70">
+                    <span className="typing-dot" />
+                    <span className="typing-dot" style={{ animationDelay: "0.15s" }} />
+                    <span className="typing-dot" style={{ animationDelay: "0.3s" }} />
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ------------------------------------------------------------------ */
 /* wishlist                                                            */
 /* ------------------------------------------------------------------ */
 
@@ -400,11 +583,13 @@ function Wishlist() {
                 )}
               </button>
               <a
-                href={MAILTO}
-                className="inline-flex items-center gap-2.5 font-bold text-frost/85 border border-white/15 hover:border-mist hover:text-mist px-6 py-3.5 rounded-sm transition-colors"
+                href={DISCORD_URL}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-2.5 font-bold text-frost/85 border border-white/15 hover:border-[#5865F2] hover:text-white px-6 py-3.5 rounded-sm transition-colors"
               >
-                <EnvelopeIcon className="w-5 h-5" />
-                Email the studio
+                <DiscordIcon className="w-5 h-5" />
+                Join the den
               </a>
             </div>
 
@@ -440,6 +625,20 @@ function Footer() {
           {SUPPORT_EMAIL}
         </a>
 
+        <div className="reveal mt-7 flex items-center justify-center gap-4 text-sm font-bold text-frost/50">
+          <span className="hidden sm:block w-10 border-t border-white/10" />
+          <a
+            href={DISCORD_URL}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center gap-2 hover:text-white hover:-translate-y-0.5 transition-all"
+          >
+            <DiscordIcon className="w-4 h-4 text-[#5865F2]" />
+            {DISCORD_HANDLE}
+          </a>
+          <span className="hidden sm:block w-10 border-t border-white/10" />
+        </div>
+
         <div className="mt-14 pt-6 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-3 text-xs text-frost/35 font-semibold">
           <p className="flex items-center gap-2">
             <CatLogo className="w-5 h-5" />© 2026 Whiskers of Yesterday · coming soon to Steam
@@ -468,6 +667,7 @@ export default function App() {
         <Masthead />
         <Ticker />
         <About />
+        <DiscordDen />
         <Wishlist />
       </main>
 
